@@ -1,4 +1,4 @@
-# OAuth Login Backend (Go + Fiber)
+# OAuth Login Backend Go
 
 Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi user. Proyek ini juga mendukung login dengan email & password, serta menyimpan histori login dan token ke Redis. Selain itu, proyek ini menggunakan **SMTP** untuk pengiriman email dan **Apache Kafka** untuk mengelola pengiriman email dalam antrian.
 
