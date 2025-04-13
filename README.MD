@@ -1,10 +1,10 @@
 # OAuth Login Backend (Go + Fiber)
 
-Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi user. Proyek ini juga mendukung login dengan email & password, serta menyimpan histori login dan token ke Redis.
+Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi user. Proyek ini juga mendukung login dengan email & password, serta menyimpan histori login dan token ke Redis. Selain itu, proyek ini menggunakan **SMTP** untuk pengiriman email dan **Apache Kafka** untuk mengelola pengiriman email dalam antrian.
 
 ## 🧹 Fitur
 
-### 🔐 Login dengan OAuth
+### 🔐 Login dengan GitHub OAuth
 
 - Mendukung login menggunakan akun GitHub (akan ditambah provider lain di masa depan).
 
@@ -32,6 +32,10 @@ Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi
 
 - Menggunakan SMTP untuk mengirimkan email (misalnya, untuk verifikasi atau reset password).
 
+### 🔄 Pengiriman Email dalam Antrian dengan Apache Kafka
+
+- Menggunakan Apache Kafka untuk mengelola pengiriman email dalam antrian, memastikan pengiriman email yang lebih efisien dan scalable.
+
 ### 🧪 Validasi Request Body
 
 - Melakukan validasi pada request body sebelum diproses.
@@ -52,6 +56,7 @@ Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi
 - **Viper**
 - **Docker**
 - **SMTP (email)**
+- **Apache Kafka**
 
 ## 🏃 Cara Menjalankan
 
@@ -61,4 +66,12 @@ Untuk menjalankan server web, gunakan perintah berikut:
 
 ```bash
 go run cmd/web/main.go
+```
+
+### Jalankan Worker
+
+Untuk menjalankan server worker, gunakan perintah berikut:
+
+```bash
+go run cmd/worker/main.go
 ```
