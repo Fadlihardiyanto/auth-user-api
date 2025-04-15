@@ -42,7 +42,7 @@ Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi
 
 ### 🧱 Clean Architecture
 
-- Menggunakan arsitektur bersih (Clean Architecture) untuk pengelolaan kode yang lebih terstruktur dan maintainable.
+- Menggunakan clean architecture untuk pengelolaan kode yang lebih terstruktur dan maintainable.
 
 ## ⚙️ Teknologi yang Digunakan
 
