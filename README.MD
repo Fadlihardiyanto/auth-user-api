@@ -51,7 +51,7 @@ Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi
 - **GORM + PostgreSQL**
 - **Golang Migration**
 - **Redis**
-- **OAuth2 (GitHub)**
+- **OAuth2 (GitHub & Google)**
 - **JWT**
 - **Viper**
 - **Docker**
