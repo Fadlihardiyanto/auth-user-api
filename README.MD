@@ -4,9 +4,9 @@ Sebuah backend sederhana menggunakan Golang, Fiber, dan OAuth2 untuk autentikasi
 
 ## 🧹 Fitur
 
-### 🔐 Login dengan GitHub OAuth
+### 🔐 Login dengan GitHub dan Google OAuth
 
-- Mendukung login menggunakan akun GitHub (akan ditambah provider lain di masa depan).
+- Mendukung login menggunakan akun GitHub dan Google (akan ditambah provider lain di masa depan).
 
 ### 🔐 Login Manual (Email & Password)
 
