@@ -49,9 +49,10 @@ func Bootstrap(config *BootstrapConfig) {
 	userLoginHistoryUserCase := usecase.NewUserLoginHistoryUsecase(config.DB, config.Log, config.Validate, userLoginHistoryRepository)
 	userAuthMethodUseCase := usecase.NewUserAuthMethodUseCase(config.DB, config.Log, config.Validate, UserAuthMethodRepository)
 	githubUsecase := usecase.NewGithubUseCase(config.DB, config.Log, config.Validate, config.Config, userUseCase, userAuthMethodUseCase)
+	googleUsecase := usecase.NewGoogleUsecase(config.DB, config.Log, config.Validate, config.Config, userUseCase, userAuthMethodUseCase)
 
 	// setup controller
-	AuthController := http.NewAuthController(userUseCase, githubUsecase, config.Log)
+	AuthController := http.NewAuthController(userUseCase, githubUsecase, googleUsecase, config.Log)
 	UserControlerr := http.NewUserController(userUseCase, config.Log)
 	ProfileController := http.NewProfileController(profileUseCase, config.Log)
 	UserLoginHistoryController := http.NewUserLoginHistoryController(userLoginHistoryUserCase, config.Log)

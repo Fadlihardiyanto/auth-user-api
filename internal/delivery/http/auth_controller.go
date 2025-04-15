@@ -22,13 +22,15 @@ type AuthController struct {
 	Log           *logrus.Logger
 	UseCase       *usecase.UserUseCase
 	GithubUseCase *usecase.GithubUseCase
+	GoogleUseCase *usecase.GoogleUseCase
 }
 
-func NewAuthController(useCase *usecase.UserUseCase, githubUseCase *usecase.GithubUseCase, logger *logrus.Logger) *AuthController {
+func NewAuthController(useCase *usecase.UserUseCase, githubUseCase *usecase.GithubUseCase, googleUseCase *usecase.GoogleUseCase, log *logrus.Logger) *AuthController {
 	return &AuthController{
-		Log:           logger,
+		Log:           log,
 		UseCase:       useCase,
 		GithubUseCase: githubUseCase,
+		GoogleUseCase: googleUseCase,
 	}
 }
 
@@ -384,6 +386,69 @@ func (c *AuthController) GithubCallback(ctx *fiber.Ctx) error {
 	response, err := c.GithubUseCase.Callback(ctx.UserContext(), request)
 	if err != nil {
 		c.Log.Warnf("Failed to get github callback : %+v", err)
+		return common.HandleErrorResponse(ctx, err)
+	}
+
+	// set cookie
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "jwt",
+		Value:    response.AccessToken,
+		Expires:  response.AccessExpiry,
+		HTTPOnly: true,
+		Secure:   true,
+	})
+
+	return ctx.JSON(model.WebResponse[*model.UserResponse]{Data: response})
+}
+
+func (c *AuthController) GoogleLogin(ctx *fiber.Ctx) error {
+	url, err := c.GoogleUseCase.Login()
+	if err != nil {
+		c.Log.Warnf("Failed to get google login url : %+v", err)
+		return fiber.ErrBadRequest
+	}
+	return ctx.Redirect(url, fiber.StatusTemporaryRedirect)
+}
+
+func (c *AuthController) GoogleCallback(ctx *fiber.Ctx) error {
+	code := ctx.Query("code")
+	if code == "" {
+		c.Log.Warnf("Failed to get code from google")
+		return fiber.ErrBadRequest
+	}
+
+	// get ip address
+	ip := ctx.IP()
+	if ip == "" {
+		c.Log.Warnf("Failed to get ip address")
+		return fiber.ErrBadRequest
+	}
+	device := ctx.Get("User-Agent")
+	if device == "" {
+		c.Log.Warnf("Failed to get device info")
+		return fiber.ErrBadRequest
+	}
+
+	parser := uaparser.NewFromSaved()
+	ua := parser.Parse(device)
+
+	deviceInfo := map[string]string{
+		"user_agent": ctx.Get("User-Agent"),
+		"os":         strings.TrimSpace(fmt.Sprintf("%s %s", ua.Os.Family, ua.Os.Major)),
+		"browser":    ua.UserAgent.Family + " " + ua.UserAgent.Major,
+		"device":     ua.Device.Family,
+	}
+	deviceJson, _ := json.Marshal(deviceInfo)
+
+	request := &model.GoogleLoginRequest{
+		Code:       code,
+		IpAddress:  ip,
+		DeviceInfo: deviceJson,
+	}
+
+	response, err := c.GoogleUseCase.Callback(ctx.UserContext(), request)
+	if err != nil {
+		c.Log.Warnf("Failed to get google callback : %+v", err)
 		return common.HandleErrorResponse(ctx, err)
 	}
 

@@ -51,6 +51,10 @@ func (c *RouteConfig) SetupGuestRoute(group fiber.Router) {
 	group.Get("/auth/github", c.AuthController.GithubLogin)
 	group.Get("/auth/github/callback", c.AuthController.GithubCallback)
 
+	// google auth
+	group.Get("/auth/google", c.AuthController.GoogleLogin)
+	group.Get("/auth/google/callback", c.AuthController.GoogleCallback)
+
 }
 
 func (c *RouteConfig) SetupAuthRoute(group fiber.Router) {
