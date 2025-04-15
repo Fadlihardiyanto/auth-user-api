@@ -7,6 +7,7 @@ import (
 	"time"
 
 	common "auth-user-api/internal/common/error"
+	"auth-user-api/internal/common/util"
 	"auth-user-api/internal/delivery/http/middleware"
 	"auth-user-api/internal/model"
 	"auth-user-api/internal/usecase"
@@ -354,28 +355,12 @@ func (c *AuthController) GithubCallback(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	// get ip address
-	ip := ctx.IP()
-	if ip == "" {
-		c.Log.Warnf("Failed to get ip address")
+	// get ip address and device info
+	ip, deviceJson, err := util.GetDeviceAndIP(ctx)
+	if err != nil {
+		c.Log.Warnf("Failed to get device and ip address : %+v", err)
 		return fiber.ErrBadRequest
 	}
-	device := ctx.Get("User-Agent")
-	if device == "" {
-		c.Log.Warnf("Failed to get device info")
-		return fiber.ErrBadRequest
-	}
-
-	parser := uaparser.NewFromSaved()
-	ua := parser.Parse(device)
-
-	deviceInfo := map[string]string{
-		"user_agent": ctx.Get("User-Agent"),
-		"os":         strings.TrimSpace(fmt.Sprintf("%s %s", ua.Os.Family, ua.Os.Major)),
-		"browser":    ua.UserAgent.Family + " " + ua.UserAgent.Major,
-		"device":     ua.Device.Family,
-	}
-	deviceJson, _ := json.Marshal(deviceInfo)
 
 	request := &model.GithubLoginRequest{
 		Code:       code,
@@ -417,28 +402,12 @@ func (c *AuthController) GoogleCallback(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	// get ip address
-	ip := ctx.IP()
-	if ip == "" {
-		c.Log.Warnf("Failed to get ip address")
+	// get ip address and device info
+	ip, deviceJson, err := util.GetDeviceAndIP(ctx)
+	if err != nil {
+		c.Log.Warnf("Failed to get device and ip address : %+v", err)
 		return fiber.ErrBadRequest
 	}
-	device := ctx.Get("User-Agent")
-	if device == "" {
-		c.Log.Warnf("Failed to get device info")
-		return fiber.ErrBadRequest
-	}
-
-	parser := uaparser.NewFromSaved()
-	ua := parser.Parse(device)
-
-	deviceInfo := map[string]string{
-		"user_agent": ctx.Get("User-Agent"),
-		"os":         strings.TrimSpace(fmt.Sprintf("%s %s", ua.Os.Family, ua.Os.Major)),
-		"browser":    ua.UserAgent.Family + " " + ua.UserAgent.Major,
-		"device":     ua.Device.Family,
-	}
-	deviceJson, _ := json.Marshal(deviceInfo)
 
 	request := &model.GoogleLoginRequest{
 		Code:       code,

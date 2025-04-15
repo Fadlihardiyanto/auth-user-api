@@ -4,14 +4,19 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
+	"github.com/ua-parser/uap-go/uaparser"
+	"gorm.io/datatypes"
 )
 
 func BindFromJson(dest any, filename, path string) error {
@@ -132,4 +137,31 @@ func ConvertStringToTime(dateStr, format string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return t, nil
+}
+
+func GetDeviceAndIP(ctx *fiber.Ctx) (string, datatypes.JSON, error) {
+	ip := ctx.IP()
+	if ip == "" {
+		logrus.Warnf("failed to get IP address")
+		return "", nil, fiber.ErrBadRequest
+	}
+	device := ctx.Get("User-Agent")
+	if device == "" {
+		logrus.Warnf("failed to get User-Agent")
+		return "", nil, fiber.ErrBadRequest
+	}
+
+	parser := uaparser.NewFromSaved()
+	ua := parser.Parse(device)
+
+	deviceInfo := map[string]string{
+		"user_agent": ctx.Get("User-Agent"),
+		"os":         strings.TrimSpace(fmt.Sprintf("%s %s", ua.Os.Family, ua.Os.Major)),
+		"browser":    ua.UserAgent.Family + " " + ua.UserAgent.Major,
+		"device":     ua.Device.Family,
+	}
+
+	deviceJson, _ := json.Marshal(deviceInfo)
+
+	return ip, deviceJson, nil
 }
